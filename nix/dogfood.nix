@@ -9,12 +9,17 @@ let
   lib = nixpkgs.lib;
 in
 rec {
-  packages = with neovim-flake.${system}; lib.mapAttrs
-    (name: modules: mkNeovim { inherit modules; })
-    {
-      default = [ core lua nix ];
-      deno = [ core deno ];
-    };
+  packages = with neovim-flake.${system};
+    let
+      common = [ core clipboard copilot ];
+    in
+    lib.mapAttrs
+      (name: extra: mkNeovim { modules = common ++ extra; })
+      {
+        default = [ lua nix ];
+        deno = [ deno ];
+      };
+
   devShells = lib.mapAttrs
     (name: package: pkgs.mkShell {
       inherit name;
